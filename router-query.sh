@@ -3,8 +3,8 @@
 # Name:        router-query.sh
 # Written by:  Kambiz Aghaiepour
 # Purpose:     Track the routers in a flat file
-#              Excludes specific tenant IDs.  This preserves
-#              the "special" cases such as services, or rdo-ci.
+#              Excludes specific tenant IDs.  This allows for
+#              exclusion of certain tenants for culling if wanted.
 #
 # This script should be run frequently via CRON, and another
 # script will use the data stored in ROUTERDB to release IPs from
@@ -63,10 +63,10 @@ function routerdbupdate () {
        fi
        echo $(egrep "^$routerid" $ROUTERDB)$append >> $ROUTERDBTEMP
      else
-       # 4c1419ed8a5645fc81140a794da591f1 == rdo-ci
-       # f68e039b76a6462aa4a622d9308c0bfd == services
-       # 974209cea9c3402e977120b5d02d500b == admin
-       # 1741d223007940d5883c10d2293df015 == demo
+       # 4c1419ed8a5645fc81140a794da591f1 == excluded tenant #1
+       # f68e039b76a6462aa4a622d9308c0bfd == excluded tenant #2
+       # 974209cea9c3402e977120b5d02d500b == excluded tenant #3
+       # 1741d223007940d5883c10d2293df015 == excluded tenant #4
 
        tenantid=$(neutron router-show $routerid | grep tenant | awk '{ print $4 }')
        echo $routerid,$routerip,$(date +%s),$tenantid >> $ROUTERDBTEMP
