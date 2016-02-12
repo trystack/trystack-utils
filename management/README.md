@@ -15,6 +15,11 @@ trystack-utils management tools
    - Records floating IP allocations
    - Creates/manages floating IP database
 
+**ospurge-driver.sh**
+   - run ospurge against a limited set of tenants
+   - Tenants that have not had an instance for 2 days get purged
+     (tenant is not deleted, just resources released)
+
 **router-query.sh**
    - Queries tenant gateways/routers
    - Uses router-query-json.py
