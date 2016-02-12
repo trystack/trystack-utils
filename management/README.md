@@ -2,6 +2,12 @@
 trystack-utils management tools
 ===============================
 
+**compare-rpm-qa.sh**
+   - Compare two files that are output from rpm -qa
+   - Useful to see how closely two hosts resemble one another,
+     especially of you need to replicate an issue and want to
+     match the installed RPMs on a host.
+
 **cinder-purge.sh**
    - Purges Cinder volumes and snapshots every 48hours
  
