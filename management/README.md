@@ -16,9 +16,10 @@ trystack-utils management tools
    - Creates/manages floating IP database
 
 **ospurge-driver.sh**
-   - run ospurge against a limited set of tenants
+   - Run ospurge against a limited set of tenants
    - Tenants that have not had an instance for 2 days get purged
      (tenant is not deleted, just resources released)
+   - ospurge: https://github.com/openstack/ospurge
 
 **router-query.sh**
    - Queries tenant gateways/routers
