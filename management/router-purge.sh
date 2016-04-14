@@ -24,6 +24,9 @@ ROUTERDB=/root/routerdb
 HOURS=12
 THRESHOLD=$(expr 60 \* 60 \* $HOURS)
 CURDATE=$(date +%s)
+# example of how to avoid clearing gateways.
+# These are partial matches on the tenant name
+SPARELIST="kambiz|student"
 
 function gw_purge() {
   id=$1
@@ -40,6 +43,14 @@ for routerentry in $(cat $ROUTERDB) ; do
   routerip=$(echo $routerentry | awk -F, '{ print $2 }')
   routertime=$(echo $routerentry | awk -F, '{ print $3 }')
 
-  gw_purge $routerid $routerip $routertime
+  owner_id=$(neutron router-show $routerid | grep tenant_id | awk -F\| '{ print $3 }' | sed 's/ //g')
+  owner_name=$(keystone tenant-get $owner_id 2>/dev/null | grep name | awk -F\| '{ print $3 }' | sed 's/ //g')
+
+  if [ "$(echo $owner_name | egrep "$SPARELIST")" ]; then
+    # spare the router ...
+    :
+  else
+    gw_purge $routerid $routerip $routertime
+  fi
 done
 

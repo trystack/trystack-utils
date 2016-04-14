@@ -26,13 +26,22 @@ ROUTERDB=/root/routerdb
 ROUTERDB_ARCHIVE=/root/routerdb.d
 HELPER=/root/router-query-json.py
 
+# 4c1419ed8a5645fc81140a794da591f1 == excluded tenant #1
+# f68e039b76a6462aa4a622d9308c0bfd == excluded tenant #2
+# 974209cea9c3402e977120b5d02d500b == excluded tenant #3
+# 1741d223007940d5883c10d2293df015 == excluded tenant #4
+
+# possibly find a better way to do this...
+# Note this is just a query, so if they're spared, it means no chance of accidentally clearing gateways on these...
+SPARE_TENANTS='4c1419ed8a5645fc81140a794da591f1|f68e039b76a6462aa4a622d9308c0bfd|974209cea9c3402e977120b5d02d500b|1741d223007940d5883c10d2293df015'
+
 function cleanup () {
   rm -f $ROUTERLIST
 }
 
 function routerlist () {
   for router in $(neutron router-list | egrep -v '^\+|external_gateway_info|null' | awk '{ print $2 }') ; do 
-    if [ -n "$(neutron router-show $router | grep tenant | egrep -v '4c1419ed8a5645fc81140a794da591f1|f68e039b76a6462aa4a622d9308c0bfd|974209cea9c3402e977120b5d02d500b|1741d223007940d5883c10d2293df015')" ]; then
+    if [ -n "$(neutron router-show $router | grep tenant | egrep -v "$SPARE_TENANTS")" ]; then
       # if we are here, we care to store the router info
       externalip=$($HELPER --js "$(neutron router-show $router | grep external_gateway_info | awk -F\| '{ print $3 }')")
       if [ -n "$externalip" ]; then
@@ -63,11 +72,6 @@ function routerdbupdate () {
        fi
        echo $(egrep "^$routerid" $ROUTERDB)$append >> $ROUTERDBTEMP
      else
-       # 4c1419ed8a5645fc81140a794da591f1 == excluded tenant #1
-       # f68e039b76a6462aa4a622d9308c0bfd == excluded tenant #2
-       # 974209cea9c3402e977120b5d02d500b == excluded tenant #3
-       # 1741d223007940d5883c10d2293df015 == excluded tenant #4
-
        tenantid=$(neutron router-show $routerid | grep tenant | awk '{ print $4 }')
        echo $routerid,$routerip,$(date +%s),$tenantid >> $ROUTERDBTEMP
      fi

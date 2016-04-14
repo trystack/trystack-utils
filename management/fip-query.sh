@@ -25,6 +25,14 @@ FIPLIST=$(mktemp /tmp/fiplistXXXXXX)
 FIPDB=/root/fipdb
 FIPDB_ARCHIVE=/root/fipdb.d
 
+# Here we exclude tenants we don't want to cull resources from
+# 4c1419ed8a5645fc81140a794da591f1 == excluded tenant #1
+# f68e039b76a6462aa4a622d9308c0bfd == excluded tenant #2
+# 974209cea9c3402e977120b5d02d500b == excluded tenant #3
+# 1741d223007940d5883c10d2293df015 == excluded tenant #4
+
+EXCLUDE_TENANTS="4c1419ed8a5645fc81140a794da591f1|f68e039b76a6462aa4a622d9308c0bfd|974209cea9c3402e977120b5d02d500b|1741d223007940d5883c10d2293df015"
+
 function cleanup () {
   rm -f $FIPLIST
 }
@@ -55,19 +63,7 @@ function fipdbupdate () {
        echo $(egrep "^$fipid" $FIPDB)$append >> $FIPDBTEMP
      else
 
-# Here we exclude tenants we don't want to cull resources from
-# 4c1419ed8a5645fc81140a794da591f1 == excluded tenant #1
-# f68e039b76a6462aa4a622d9308c0bfd == excluded tenant #2
-# 974209cea9c3402e977120b5d02d500b == excluded tenant #3
-# 1741d223007940d5883c10d2293df015 == excluded tenant #4
-
-exclude_tenant1='4c1419ed8a5645fc81140a794da591f1'
-exclude_tenant2='f68e039b76a6462aa4a622d9308c0bfd'
-exclude_tenant3='974209cea9c3402e977120b5d02d500b'
-exclude_tenant4='1741d223007940d5883c10d2293df015'
-
-       if [ -n "$(neutron floatingip-show $fipid | grep tenant_id | egrep -v \
-         "$exclude_tenant1|$exclude_tenant2|$exclude_tenant3|$exclude_tenant4")" ] ; then
+       if [ -n "$(neutron floatingip-show $fipid | grep tenant_id | egrep -v "$EXCLUDE_TENANTS")" ] ; then
          echo $fipid,$fipip,$(date +%s) >> $FIPDBTEMP
        fi
 
